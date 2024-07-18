@@ -3,7 +3,7 @@ services:
     container_name: ozone-eip-ettors-openmrs
     env_file:
       - .env
-    image: mekomsolutions/eip-client:xo
+    image: mekomsolutions/eip-client:2.2.0-SNAPSHOT
     # Mount the JAR file from the target directory to the container
     volumes:
       - ../ettors-openmrs/target/eip-ettors-openmrs-1.0.0-SNAPSHOT.jar:/eip-client/routes/eip-ettors-openmrs-1.0.0-SNAPSHOT.jar
