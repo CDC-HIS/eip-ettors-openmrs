@@ -7,6 +7,7 @@ import org.ephi.eip.Constants;
 import org.ephi.eip.config.EttorsConfig;
 import org.ephi.eip.filters.ViralLoadServiceRequestFilter;
 import org.ephi.eip.processors.ViralLoadServiceRequestProcessor;
+import org.hl7.fhir.r4.model.ServiceRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -27,8 +28,10 @@ public class ViralLoadRequestPostingRoute extends RouteBuilder {
     public void configure() {
         from("direct:fhir-servicerequest")
             .routeId("post-viral-load-request")
+            .filter(body().isNotNull())
+            .filter(exchange -> exchange.getMessage().getBody() instanceof ServiceRequest)
             .filter(viralLoadServiceRequestFilter)
-            .log(LoggingLevel.INFO, "Viral Load Service Request detected")
+            .log(LoggingLevel.INFO, "Viral Load ServiceRequest detected")
             .process(viralLoadServiceRequestProcessor)
             .setHeader(Constants.CAMEL_HTTP_METHOD, constant(Constants.POST))
             .setHeader(Constants.CONTENT_TYPE, constant(Constants.APPLICATION_JSON))
