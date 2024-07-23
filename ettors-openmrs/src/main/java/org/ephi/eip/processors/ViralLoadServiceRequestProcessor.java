@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.component.fhir.FhirComponent;
+import org.ephi.eip.Constants;
 import org.ephi.eip.config.EttorsOpenmrsConfig;
 import org.ephi.ettors.model.ViralLoadRequestPayload;
 import org.hl7.fhir.r4.model.Encounter;
@@ -50,6 +51,8 @@ public class ViralLoadServiceRequestProcessor implements Processor {
                     .withId(encounter.getLocationFirstRep().getLocation().getReference().split("/")[1])
                     .execute();
 
+            exchange.setProperty(Constants.EXCHANGE_PROPERTY_SERVICE_REQUEST, serviceRequest);
+
             ViralLoadRequestPayload payload = this.assembleViralLoadRequestPayload(patient, encounter, location);
             try {
                 String payloadJsonString = new ObjectMapper().writeValueAsString(payload);
@@ -77,7 +80,6 @@ public class ViralLoadServiceRequestProcessor implements Processor {
         // Set patient UAN & MRN Identifiers
         viralLoadRequestPayload.setUan(this.getPatientIdentifier(patient, ettorsOpenmrsConfig.getUANPatientIdentifierType()));
         viralLoadRequestPayload.setMrn(this.getPatientIdentifier(patient, ettorsOpenmrsConfig.getMRNPatientIdentifierType()));
-
 
         // Set encounter location
         viralLoadRequestPayload.setFacilityCode(location.getName());

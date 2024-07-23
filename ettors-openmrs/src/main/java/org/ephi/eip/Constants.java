@@ -12,4 +12,6 @@ public class Constants {
 
     public static final String APPLICATION_JSON = "application/json";
 
+    public static final String EXCHANGE_PROPERTY_SERVICE_REQUEST = "exchangeProperty.serviceRequest";
+
 }

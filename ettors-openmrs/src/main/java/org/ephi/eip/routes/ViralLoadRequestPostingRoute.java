@@ -6,6 +6,7 @@ import org.apache.camel.builder.RouteBuilder;
 import org.ephi.eip.Constants;
 import org.ephi.eip.config.EttorsConfig;
 import org.ephi.eip.filters.ViralLoadServiceRequestFilter;
+import org.ephi.eip.processors.TaskProcessor;
 import org.ephi.eip.processors.ViralLoadServiceRequestProcessor;
 import org.hl7.fhir.r4.model.ServiceRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,9 @@ public class ViralLoadRequestPostingRoute extends RouteBuilder {
     @Autowired
     private EttorsConfig ettorsConfig;
 
+    @Autowired
+    private TaskProcessor taskProcessor;
+
     @Override
     public void configure() {
         from("direct:fhir-servicerequest")
@@ -32,13 +36,15 @@ public class ViralLoadRequestPostingRoute extends RouteBuilder {
             .filter(exchange -> exchange.getMessage().getBody() instanceof ServiceRequest)
             .filter(viralLoadServiceRequestFilter)
             .log(LoggingLevel.INFO, "Viral Load ServiceRequest detected")
-            
             .setHeader(Constants.CAMEL_HTTP_METHOD, constant(Constants.POST))
             .process(viralLoadServiceRequestProcessor)
             .setHeader(Constants.CAMEL_HTTP_METHOD, constant(Constants.POST))
             .setHeader(Constants.CONTENT_TYPE, constant(Constants.APPLICATION_JSON))
             .setHeader(Constants.AUTHORIZATION, constant(ettorsConfig.basicAuthHeader()))
-            .toD(ettorsConfig.getEttorsServerUrl() + "/api/ViralLoadModel/InsertViralLoad")
-            .log(LoggingLevel.INFO, "Viral posted to ETTORS successfully").end();
+                //.toD(ettorsConfig.getEttorsServerUrl() + "/api/ViralLoadModel/InsertViralLoad")
+            .log(LoggingLevel.INFO, "Viral Load Request posted to ETTORS")
+            .process(taskProcessor)
+            .to("fhir://create/resource?inBody=resource")
+            .log(LoggingLevel.INFO, "Task created").end();
     }
 }
