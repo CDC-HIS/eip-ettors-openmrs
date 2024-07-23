@@ -25,7 +25,11 @@ public class ViralLoadObservationFilter implements Predicate {
             throw new IllegalStateException("The viralLoadIndicatorConceptUuid property is not set");
         }
         Observation observation = exchange.getMessage().getBody(Observation.class);
-        return observation.getCode().getCoding().stream()
-                .anyMatch(coding -> viralLoadIndicatorConceptUuid.equals(coding.getCode()));
+        if(observation != null) {
+            return observation.getCode().getCoding().stream()
+                    .anyMatch(coding -> viralLoadIndicatorConceptUuid.equals(coding.getCode()));
+
+        }
+        return  false;
     }
 }
