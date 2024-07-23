@@ -4,16 +4,16 @@ import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.ephi.eip.Constants;
 import org.ephi.eip.config.OpenmrsConfig;
-import org.ephi.eip.filters.ViralLoadRequestFilter;
+import org.ephi.eip.filters.ViralLoadObservationFilter;
 import org.ephi.eip.processors.ViralLoadRequestProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ViralLoadServiceRequestCreationRoute extends RouteBuilder {
+public class ViralLoadOrderCreationRoute extends RouteBuilder {
 
     @Autowired
-    private ViralLoadRequestFilter viralLoadRequestFilter;
+    private ViralLoadObservationFilter viralLoadObservationFilter;
 
     @Autowired
     private ViralLoadRequestProcessor viralLoadRequestProcessor;
@@ -25,7 +25,7 @@ public class ViralLoadServiceRequestCreationRoute extends RouteBuilder {
     public void configure() {
         from("direct:fhir-obs")
             .routeId("fhir-obs-to-viral-load-service-request-router")
-            .filter(viralLoadRequestFilter)
+            .filter(viralLoadObservationFilter)
             .log(LoggingLevel.INFO, "Viral Load request detected")
             .process(viralLoadRequestProcessor)
             .setHeader(Constants.CAMEL_HTTP_METHOD, constant(Constants.POST))

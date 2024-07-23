@@ -21,7 +21,6 @@ public class ViralLoadRequestProcessor implements Processor {
     @Override
     public void process(Exchange exchange) {
         Observation observation = exchange.getMessage().getBody(Observation.class);
-
         FhirComponent fhirComponent = exchange.getContext().getComponent("fhir", FhirComponent.class);
 
         if (observation != null) {

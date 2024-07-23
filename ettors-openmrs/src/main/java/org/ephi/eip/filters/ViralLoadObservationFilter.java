@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
-public class ViralLoadRequestFilter implements Predicate {
+public class ViralLoadObservationFilter implements Predicate {
 
     // The UUID of the concept that represents the viral load indicator in OpenMRS
     // If not set, the application won't start as this is a required property.
