@@ -27,8 +27,6 @@ public class ViralLoadServiceRequestProcessor implements Processor {
                     .resource(Patient.class)
                     .withId(patientUuid)
                     .execute();
-
-
         }
     }
 

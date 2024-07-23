@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class ViralLoadRequestProcessor implements Processor {
+public class ViralLoadOrderProcessor implements Processor {
 
     private static final String VIRAL_LOAD_CONCEPT_UUID = "856AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
 

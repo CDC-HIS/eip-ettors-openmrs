@@ -5,7 +5,7 @@ import org.apache.camel.builder.RouteBuilder;
 import org.ephi.eip.Constants;
 import org.ephi.eip.config.OpenmrsConfig;
 import org.ephi.eip.filters.ViralLoadObservationFilter;
-import org.ephi.eip.processors.ViralLoadRequestProcessor;
+import org.ephi.eip.processors.ViralLoadOrderProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +16,7 @@ public class ViralLoadOrderCreationRoute extends RouteBuilder {
     private ViralLoadObservationFilter viralLoadObservationFilter;
 
     @Autowired
-    private ViralLoadRequestProcessor viralLoadRequestProcessor;
+    private ViralLoadOrderProcessor viralLoadOrderProcessor;
 
     @Autowired
     private OpenmrsConfig openmrsConfig;
@@ -27,7 +27,7 @@ public class ViralLoadOrderCreationRoute extends RouteBuilder {
             .routeId("fhir-obs-to-viral-load-service-request-router")
             .filter(viralLoadObservationFilter)
             .log(LoggingLevel.INFO, "Viral Load request detected")
-            .process(viralLoadRequestProcessor)
+            .process(viralLoadOrderProcessor)
             .setHeader(Constants.CAMEL_HTTP_METHOD, constant(Constants.POST))
             .setHeader(Constants.CONTENT_TYPE, constant(Constants.APPLICATION_JSON))
             .setHeader(Constants.AUTHORIZATION, constant(openmrsConfig.basicAuthHeader()))
