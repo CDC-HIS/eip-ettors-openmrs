@@ -32,6 +32,6 @@ public class ViralLoadOrderCreationRoute extends RouteBuilder {
             .setHeader(Constants.CONTENT_TYPE, constant(Constants.APPLICATION_JSON))
             .setHeader(Constants.AUTHORIZATION, constant(openmrsConfig.basicAuthHeader()))
             .toD(openmrsConfig.getServerUrl() + "/ws/rest/v1/order")
-            .log(LoggingLevel.INFO, "Viral Load Order created with Order Number: ${body.orderNumber}").end();
+            .log(LoggingLevel.INFO, "Viral Load Order created with Order Number: ${body}").end();
     }
 }
