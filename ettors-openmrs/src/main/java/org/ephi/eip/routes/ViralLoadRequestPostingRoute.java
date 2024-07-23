@@ -32,11 +32,13 @@ public class ViralLoadRequestPostingRoute extends RouteBuilder {
             .filter(exchange -> exchange.getMessage().getBody() instanceof ServiceRequest)
             .filter(viralLoadServiceRequestFilter)
             .log(LoggingLevel.INFO, "Viral Load ServiceRequest detected")
+            
+            .setHeader(Constants.CAMEL_HTTP_METHOD, constant(Constants.POST))
             .process(viralLoadServiceRequestProcessor)
             .setHeader(Constants.CAMEL_HTTP_METHOD, constant(Constants.POST))
             .setHeader(Constants.CONTENT_TYPE, constant(Constants.APPLICATION_JSON))
             .setHeader(Constants.AUTHORIZATION, constant(ettorsConfig.basicAuthHeader()))
-            .toD(ettorsConfig.getEttorsServerUrl() + "/Help/Api/POST-api-ViralLoadModel-InsertViralLoad")
+            .toD(ettorsConfig.getEttorsServerUrl() + "/api/ViralLoadModel/InsertViralLoad")
             .log(LoggingLevel.INFO, "Viral posted to ETTORS successfully").end();
     }
 }

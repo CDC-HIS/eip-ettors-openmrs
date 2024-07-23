@@ -28,7 +28,7 @@ public class ViralLoadRequestPayload {
     @JsonProperty("RequestBy")
     private String requestedBy;
 
-    @JsonProperty("requestedDate")
+    @JsonProperty("RequestedDate")
     private String requestedDate;
 
     @JsonProperty("Regimen")
