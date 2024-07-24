@@ -38,17 +38,19 @@ public class PendingTaskProcessor implements Processor {
 
                 ViralLoadRequestPayload result = producerTemplate.requestBodyAndHeader("direct:fetch-viral-load-result-by-request-id",
                         task, "orderNumber", orderNumber, ViralLoadRequestPayload.class);
-                result.setTestResult("1000");
+                if (result != null) {
+                    String viralResult = result.getTestResult();
+                    // Validate viral load result
+                    if (viralResult != null && !viralResult.equals("N/A") && viralResult.matches("\\d+")) {
+                        // Attached viral load result to Encounter
+                        this.saveViralResults(exchange, result, task);
 
-                String viralResult = result.getTestResult();
-                // Validate viral load result
-                if (viralResult != null && !viralResult.equals("N/A") && viralResult.matches("\\d+")) {
-                    // Attached viral load result to Encounter
-                    this.saveViralResults(exchange, result, task);
-
-                    // Mark task as completed
-                    task.setStatus(Task.TaskStatus.COMPLETED);
-                    client.update().resource(task).execute();
+                        // Mark task as completed
+                        task.setStatus(Task.TaskStatus.COMPLETED);
+                        client.update().resource(task).execute();
+                    }
+                } else {
+                    log.info("No viral load result found for order number: {}", orderNumber);
                 }
             });
         } catch (IOException e) {
