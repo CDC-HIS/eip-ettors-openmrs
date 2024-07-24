@@ -31,7 +31,7 @@ public class ViralLoadServiceRequestProcessor implements Processor {
 
     @Override
     public void process(Exchange exchange) {
-        ServiceRequest serviceRequest = exchange.getMessage().getBody(ServiceRequest.class);
+        ServiceRequest serviceRequest = exchange.getProperty(Constants.EXCHANGE_PROPERTY_SERVICE_REQUEST, ServiceRequest.class);
         FhirComponent fhirComponent = exchange.getContext().getComponent("fhir", FhirComponent.class);
         IGenericClient openmrsFhirClient = fhirComponent.getConfiguration().getClient();
 
@@ -51,12 +51,11 @@ public class ViralLoadServiceRequestProcessor implements Processor {
                     .withId(encounter.getLocationFirstRep().getLocation().getReference().split("/")[1])
                     .execute();
 
-            exchange.setProperty(Constants.EXCHANGE_PROPERTY_SERVICE_REQUEST, serviceRequest);
-
             ViralLoadRequestPayload payload = this.assembleViralLoadRequestPayload(patient, encounter, location);
+            String OrderNumber = exchange.getProperty(Constants.EXCHANGE_PROPERTY_ORDER_NUMBER, String.class);
+            payload.setRequestID(OrderNumber);
             try {
                 String payloadJsonString = new ObjectMapper().writeValueAsString(payload);
-                log.info("Viral Load Request: {}", payloadJsonString);
                 exchange.getMessage().setBody(payloadJsonString);
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
@@ -101,13 +100,13 @@ public class ViralLoadServiceRequestProcessor implements Processor {
         viralLoadRequestPayload.setSpecimenCollectedDate("1900-01-01T00:00:00");
         viralLoadRequestPayload.setSpecimenType("Blood");
         viralLoadRequestPayload.setSpecimenSentToReferralDate("1900-01-01T00:00:00");
-        viralLoadRequestPayload.setLabId("Lab 1");
-        viralLoadRequestPayload.setLabName("Lab 1");
+        viralLoadRequestPayload.setLabId("9");
+        viralLoadRequestPayload.setLabName("Addis Ababa Regional Lab");
         viralLoadRequestPayload.setSpecimenReceivedDate("1900-01-01T00:00:00");
         viralLoadRequestPayload.setSpecimenQuality("Good");
         viralLoadRequestPayload.setReasonForRejection("N/A");
         viralLoadRequestPayload.setTestedBy("N/A");
-        viralLoadRequestPayload.setTestResult("N/A");
+        viralLoadRequestPayload.setTestResult("");
         viralLoadRequestPayload.setTestResultDate("1900-01-01T00:00:00");
         viralLoadRequestPayload.setReviewedBy("N/A");
         viralLoadRequestPayload.setAlertSentDate("1900-01-01T00:00:00");
@@ -116,16 +115,12 @@ public class ViralLoadServiceRequestProcessor implements Processor {
         viralLoadRequestPayload.setResultReceivedByFacility("N/A");
         viralLoadRequestPayload.setAttachedToPatientDate("1900-01-01T00:00:00");
         viralLoadRequestPayload.setCommunicatedToPatientDate("1900-01-01T00:00:00");
-
-        viralLoadRequestPayload.setRequestID("Order 1");
         viralLoadRequestPayload.setResponseID("N/A");
         viralLoadRequestPayload.setFacilityName("Facility 1");
         viralLoadRequestPayload.setRegionName("Region 1");
         viralLoadRequestPayload.setSex("M");
         viralLoadRequestPayload.setAge("25");
         viralLoadRequestPayload.setAgeInMonths("N/A");
-
-
         return viralLoadRequestPayload;
     }
 }
