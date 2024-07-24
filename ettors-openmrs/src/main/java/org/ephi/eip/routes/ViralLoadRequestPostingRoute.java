@@ -58,7 +58,6 @@ public class ViralLoadRequestPostingRoute extends RouteBuilder {
                 })
             .setHeader(Constants.CAMEL_HTTP_METHOD, constant(Constants.POST))
             .process(viralLoadServiceRequestProcessor)
-            .setHeader(Constants.CAMEL_HTTP_METHOD, constant(Constants.POST))
             .setHeader(Constants.CONTENT_TYPE, constant(Constants.APPLICATION_JSON))
             .setHeader(Constants.AUTHORIZATION, constant(ettorsConfig.basicAuthHeader()))
             .toD(ettorsConfig.getEttorsServerUrl() + "/api/ViralLoadModel/InsertViralLoad")

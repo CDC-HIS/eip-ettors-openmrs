@@ -54,6 +54,18 @@ public class ViralLoadServiceRequestProcessor implements Processor {
             ViralLoadRequestPayload payload = this.assembleViralLoadRequestPayload(patient, encounter, location);
             String OrderNumber = exchange.getProperty(Constants.EXCHANGE_PROPERTY_ORDER_NUMBER, String.class);
             payload.setRequestID(OrderNumber);
+
+            ViralLoadRequestPayload result = exchange.getContext().createProducerTemplate()
+                    .requestBodyAndHeader("direct:fetch-viral-load-result-by-request-id",
+                    null, "orderNumber", OrderNumber, ViralLoadRequestPayload.class);
+            if (result != null) {
+                // Update Viral Load request.
+                exchange.getMessage().setHeader("CamelHttpMethod", "PUT");
+            } else {
+                // Create Viral Load request.
+                exchange.getMessage().setHeader("CamelHttpMethod", "POST");
+            }
+
             try {
                 String payloadJsonString = new ObjectMapper().writeValueAsString(payload);
                 exchange.getMessage().setBody(payloadJsonString);
@@ -88,13 +100,13 @@ public class ViralLoadServiceRequestProcessor implements Processor {
         String formattedDateString = OffsetDateTime.ofInstant(startInstant, ZoneOffset.UTC).format(outputFormatter);
 
         viralLoadRequestPayload.setRequestedDate(formattedDateString);
-        viralLoadRequestPayload.setRegimen("Regimen 1");
+        viralLoadRequestPayload.setRegimen("1e");
         viralLoadRequestPayload.setDateInitiated("2021-01-01");
         viralLoadRequestPayload.setPregnancy("No");
         viralLoadRequestPayload.setBreastfeeding("No");
         viralLoadRequestPayload.setCd4MostRecent("100");
         viralLoadRequestPayload.setCd4MostRecentDate("2021-01-01");
-        viralLoadRequestPayload.setRoutineVL("Yes");
+        viralLoadRequestPayload.setRoutineVL("Annual VL Test");
         viralLoadRequestPayload.setRoutineVLPregnantMother("No");
         viralLoadRequestPayload.setTargeted("No");
         viralLoadRequestPayload.setSpecimenCollectedDate("1900-01-01T00:00:00");
@@ -115,12 +127,11 @@ public class ViralLoadServiceRequestProcessor implements Processor {
         viralLoadRequestPayload.setResultReceivedByFacility("N/A");
         viralLoadRequestPayload.setAttachedToPatientDate("1900-01-01T00:00:00");
         viralLoadRequestPayload.setCommunicatedToPatientDate("1900-01-01T00:00:00");
-        viralLoadRequestPayload.setResponseID("N/A");
+        viralLoadRequestPayload.setResponseID("");
         viralLoadRequestPayload.setFacilityName("Facility 1");
         viralLoadRequestPayload.setRegionName("Region 1");
         viralLoadRequestPayload.setSex("M");
         viralLoadRequestPayload.setAge("25");
-        viralLoadRequestPayload.setAgeInMonths("N/A");
         return viralLoadRequestPayload;
     }
 }
