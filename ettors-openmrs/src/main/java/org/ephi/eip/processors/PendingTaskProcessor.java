@@ -41,7 +41,7 @@ public class PendingTaskProcessor implements Processor {
                 if (result != null) {
                     String viralResult = result.getTestResult();
                     // Validate viral load result
-                    if (viralResult != null && !viralResult.equals("N/A") && viralResult.matches("\\d+")) {
+                    if (viralResult != null && !viralResult.isEmpty()) {
                         // Attached viral load result to Encounter
                         this.saveViralResults(exchange, result, task);
 

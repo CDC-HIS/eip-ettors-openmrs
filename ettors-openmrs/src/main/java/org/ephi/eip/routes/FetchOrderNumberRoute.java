@@ -3,12 +3,14 @@ package org.ephi.eip.routes;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Setter;
 import org.apache.camel.builder.RouteBuilder;
 import org.ephi.eip.Constants;
 import org.ephi.eip.config.OpenmrsConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+@Setter
 @Component
 public class FetchOrderNumberRoute extends RouteBuilder {
 

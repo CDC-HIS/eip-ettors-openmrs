@@ -16,6 +16,9 @@ import lombok.Setter;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ViralLoadRequestPayload {
 
+    @JsonProperty("ID")
+    private String ID;
+
     @JsonProperty("MRN")
     private String mrn;
 
@@ -25,7 +28,7 @@ public class ViralLoadRequestPayload {
     @JsonProperty("FacilityCode")
     private String facilityCode;
 
-    @JsonProperty("RequestBy")
+    @JsonProperty("Requestedby")
     private String requestedBy;
 
     @JsonProperty("RequestedDate")

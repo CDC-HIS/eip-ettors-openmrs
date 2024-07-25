@@ -17,10 +17,12 @@ import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.ServiceRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 @Slf4j
 @Component
@@ -28,6 +30,8 @@ public class ViralLoadServiceRequestProcessor implements Processor {
 
     @Autowired
     private EttorsOpenmrsConfig ettorsOpenmrsConfig;
+
+    private static final String DEFAULT_DATETIME = "1900-01-01T00:00:00";
 
     @Override
     public void process(Exchange exchange) {
@@ -60,12 +64,13 @@ public class ViralLoadServiceRequestProcessor implements Processor {
                     null, "orderNumber", OrderNumber, ViralLoadRequestPayload.class);
             if (result != null) {
                 // Update Viral Load request.
-                exchange.getMessage().setHeader("CamelHttpMethod", "PUT");
+                payload.setID(result.getID());
+                payload.setResponseID(result.getResponseID());
+                exchange.getMessage().setHeader("CamelHttpMethod", "POST");
             } else {
                 // Create Viral Load request.
                 exchange.getMessage().setHeader("CamelHttpMethod", "POST");
             }
-
             try {
                 String payloadJsonString = new ObjectMapper().writeValueAsString(payload);
                 exchange.getMessage().setBody(payloadJsonString);
@@ -93,45 +98,52 @@ public class ViralLoadServiceRequestProcessor implements Processor {
         viralLoadRequestPayload.setMrn(this.getPatientIdentifier(patient, ettorsOpenmrsConfig.getMRNPatientIdentifierType()));
 
         // Set encounter location
-        viralLoadRequestPayload.setFacilityCode(location.getName());
+        viralLoadRequestPayload.setFacilityCode("141060012");
         viralLoadRequestPayload.setRequestedBy("Nurse 1");
         Instant startInstant = encounter.getPeriod().getStart().toInstant();
         DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
         String formattedDateString = OffsetDateTime.ofInstant(startInstant, ZoneOffset.UTC).format(outputFormatter);
 
         viralLoadRequestPayload.setRequestedDate(formattedDateString);
-        viralLoadRequestPayload.setRegimen("1e");
-        viralLoadRequestPayload.setDateInitiated("2021-01-01");
+        viralLoadRequestPayload.setRegimen("1j (TDF+3TC+DTG)");
+        viralLoadRequestPayload.setDateInitiated("2005-07-15T00:00:00");
         viralLoadRequestPayload.setPregnancy("No");
         viralLoadRequestPayload.setBreastfeeding("No");
-        viralLoadRequestPayload.setCd4MostRecent("100");
-        viralLoadRequestPayload.setCd4MostRecentDate("2021-01-01");
+        viralLoadRequestPayload.setCd4MostRecent("");
+        viralLoadRequestPayload.setCd4MostRecentDate("");
         viralLoadRequestPayload.setRoutineVL("Annual VL Test");
         viralLoadRequestPayload.setRoutineVLPregnantMother("No");
-        viralLoadRequestPayload.setTargeted("No");
+        viralLoadRequestPayload.setTargeted("");
         viralLoadRequestPayload.setSpecimenCollectedDate("1900-01-01T00:00:00");
-        viralLoadRequestPayload.setSpecimenType("Blood");
-        viralLoadRequestPayload.setSpecimenSentToReferralDate("1900-01-01T00:00:00");
-        viralLoadRequestPayload.setLabId("9");
+        viralLoadRequestPayload.setSpecimenType("Plasma");
+        viralLoadRequestPayload.setSpecimenSentToReferralDate(DEFAULT_DATETIME);
+        viralLoadRequestPayload.setLabId("");
         viralLoadRequestPayload.setLabName("Addis Ababa Regional Lab");
-        viralLoadRequestPayload.setSpecimenReceivedDate("1900-01-01T00:00:00");
-        viralLoadRequestPayload.setSpecimenQuality("Good");
-        viralLoadRequestPayload.setReasonForRejection("N/A");
-        viralLoadRequestPayload.setTestedBy("N/A");
-        viralLoadRequestPayload.setTestResult("");
-        viralLoadRequestPayload.setTestResultDate("1900-01-01T00:00:00");
-        viralLoadRequestPayload.setReviewedBy("N/A");
-        viralLoadRequestPayload.setAlertSentDate("1900-01-01T00:00:00");
-        viralLoadRequestPayload.setDispatchDate("1900-01-01T00:00:00");
-        viralLoadRequestPayload.setResultReachedToFacDate("1900-01-01T00:00:00");
-        viralLoadRequestPayload.setResultReceivedByFacility("N/A");
-        viralLoadRequestPayload.setAttachedToPatientDate("1900-01-01T00:00:00");
-        viralLoadRequestPayload.setCommunicatedToPatientDate("1900-01-01T00:00:00");
-        viralLoadRequestPayload.setResponseID("");
-        viralLoadRequestPayload.setFacilityName("Facility 1");
-        viralLoadRequestPayload.setRegionName("Region 1");
-        viralLoadRequestPayload.setSex("M");
-        viralLoadRequestPayload.setAge("25");
+        viralLoadRequestPayload.setSpecimenReceivedDate(DEFAULT_DATETIME);
+        viralLoadRequestPayload.setSpecimenQuality("");
+//        viralLoadRequestPayload.setReasonForRejection("");
+//        viralLoadRequestPayload.setTestedBy("");
+//        viralLoadRequestPayload.setTestResult("");
+//        viralLoadRequestPayload.setTestResultDate("1900-01-01T00:00:00");
+       // viralLoadRequestPayload.setReviewedBy("");
+       //viralLoadRequestPayload.setAlertSentDate("1900-01-01T00:00:00");
+        //viralLoadRequestPayload.setDispatchDate("1900-01-01T00:00:00");
+        // viralLoadRequestPayload.setResultReachedToFacDate("1900-01-01T00:00:00");
+        //viralLoadRequestPayload.setResultReceivedByFacility("");
+        viralLoadRequestPayload.setAttachedToPatientDate(DEFAULT_DATETIME);
+        viralLoadRequestPayload.setCommunicatedToPatientDate(DEFAULT_DATETIME);
+        // viralLoadRequestPayload.setResponseID("");
+        viralLoadRequestPayload.setFacilityName(location.getName());
+        viralLoadRequestPayload.setRegionName("Addis Ababa");
+        viralLoadRequestPayload.setSex(patient.getGender().getDisplay());
+        viralLoadRequestPayload.setAge(calculateAge(patient.getBirthDate()));
         return viralLoadRequestPayload;
+    }
+
+    private String calculateAge(Date birthDate) {
+        Instant birthInstant = birthDate.toInstant();
+        Instant now = Instant.now();
+        long years = birthInstant.atZone(ZoneOffset.UTC).until(now.atZone(ZoneOffset.UTC), java.time.temporal.ChronoUnit.YEARS);
+        return String.valueOf(years);
     }
 }
